@@ -1,8 +1,51 @@
 # Pal Pal — Epic 9:16 Kinetic Lyric Video
 
-A production-grade, 9:16 vertical kinetic lyric video for the hit track **"Pal Pal"** by Afusic (Prod. by Ali Soomro), engineered with [Hyperframes](https://hyperframes.dev), [GSAP 3](https://greensock.com/gsap/), [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) (`large-v3`), and [FFmpeg](https://ffmpeg.org).
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Format](https://img.shields.io/badge/Format-9%3A16%20Vertical-purple.svg)](#)
+[![Resolution](https://img.shields.io/badge/Resolution-1080%C3%971920-success.svg)](#)
+[![Hyperframes](https://img.shields.io/badge/Engine-Hyperframes%200.8-orange.svg)](https://hyperframes.dev)
+[![GSAP](https://img.shields.io/badge/Motion-GSAP%203-green.svg)](https://greensock.com)
+[![Whisper](https://img.shields.io/badge/Alignment-Whisper.cpp%20large--v3-red.svg)](https://github.com/ggerganov/whisper.cpp)
+
+A production-grade, 9:16 vertical kinetic lyric video for the viral track **"Pal Pal"** by Afusic (Prod. by Ali Soomro), engineered with [Hyperframes](https://hyperframes.dev), [GSAP 3](https://greensock.com/gsap/), [Whisper.cpp](https://github.com/ggerganov/whisper.cpp) (`large-v3`), and [FFmpeg](https://ffmpeg.org).
 
 ![Pal Pal Lyric Video Contact Sheet](snapshots/contact-sheet.jpg)
+
+---
+
+## Architecture Pipeline
+
+```mermaid
+flowchart TD
+    subgraph AudioPipeline ["1. Audio Engineering & Signal Analysis"]
+        Audio["Master Audio (Afusic - Pal Pal)"] --> Trim["FFmpeg 7.1 Hook Trim (19.5s @ 320kbps)"]
+        Trim --> Whisper["Whisper.cpp (large-v3 Metal GPU)"]
+        Trim --> Librosa["Librosa Beat Tracking & Onsets"]
+        Whisper --> WordData["Word Timestamps (31 Words)"]
+        Librosa --> BeatData["Beat Transients (21 Beats)"]
+    end
+
+    subgraph MotionDesign ["2. Visual Architecture & Kinetics"]
+        DOM["index.html (1080x1920, isolation: isolate)"]
+        WordData --> KineticWords["3-Tier Word Kinetics (Slam, Vocal Hold Drift, Ghost Echo)"]
+        BeatData --> BeatKicks["#camera-rig Beat Kicks (y: -14px) & White Flashes"]
+        Duotone["Duotone Shift (Blue -> Wine Red at 9.45s)"]
+        Mosaic["Diamond Pixel-Mosaic Dissolves (112 Tiles)"]
+        Grain["35mm Procedural SVG Grain Jitter"]
+    end
+
+    subgraph RenderEngine ["3. Frame-by-Frame Execution & Output"]
+        KineticWords --> MasterTL["Master GSAP Timeline (window.__timelines['main'])"]
+        BeatKicks --> MasterTL
+        Duotone --> MasterTL
+        Mosaic --> MasterTL
+        Grain --> MasterTL
+        MasterTL --> HF["Hyperframes Deterministic Seek Engine"]
+        HF --> GPU["Hardware Metal / WebGL GPU Capture"]
+        GPU --> Mux["FFmpeg Assembly & Audio Multiplexing"]
+        Mux --> FinalMP4["out.mp4 (1080x1920 @ 30fps, 32.6 MB)"]
+    end
+```
 
 ---
 
@@ -87,7 +130,11 @@ ffmpeg -y -ss 00:00:17.000 -to 00:00:36.500 -i source_audio.mp3 \
 
 ### Step 3: Millisecond-Precision Word Alignment
 
-Transcribe the trimmed audio with `whisper-cli` using the `large-v3` model and word-level timestamp generation:
+Use the bundled automation utility to extract word boundaries:
+```bash
+python3 scripts/transcribe_and_align.py --audio assets/audio.mp3 --lang ur
+```
+Or directly via `whisper-cli`:
 ```bash
 whisper-cli -m ~/.cache/hyperframes/whisper/models/ggml-large-v3.bin \
   -f assets/audio.mp3 \
@@ -95,30 +142,21 @@ whisper-cli -m ~/.cache/hyperframes/whisper/models/ggml-large-v3.bin \
   --output-json \
   -of transcription
 ```
-The output JSON yields exact word start/end bounds (`[start, end]`). Align these bounds with the lyric text array in JavaScript.
 
 ---
 
 ### Step 4: Beat Detection for Visual Synchronization
 
-Detect musical transients to drive camera kicks and white flash frames:
-```python
-import librosa
-import numpy as np
-
-y, sr = librosa.load("assets/audio.mp3")
-tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
-beat_times = librosa.frames_to_time(beat_frames, sr=sr)
-
-# Strong beat transients:
-# [0.12, 0.92, 1.78, 2.64, 3.58, 4.58, 5.14, 6.10, 7.42, 8.18, 9.72, 10.74, 11.62, 12.02, 12.96, 14.02, 15.00, 16.22, 17.04, 17.72, 18.78]
+Extract drum transients to drive camera kicks and flashes:
+```bash
+python3 scripts/detect_beats.py --audio assets/audio.mp3 --output assets/beats.json
 ```
 
 ---
 
 ### Step 5: Visual Styling & Kinetic Animation Mechanics
 
-#### 1. Why Difference Blend Mode?
+#### 1. Difference Blend Mode Formula
 ```css
 #root {
   isolation: isolate;
@@ -141,7 +179,6 @@ Do **not** animate CSS `letter-spacing` directly in GSAP: `letter-spacing` snaps
 - `opacity`
 
 #### 3. Kinetic Curve Structure
-Each word utilizes a 3-tier animation curve:
 ```javascript
 // 1. Instant reveal
 tl.set(card, { autoAlpha: 1 }, w.start);
@@ -176,7 +213,7 @@ tl.set(card, { autoAlpha: 0 }, w.end);
 
 ### Step 6: Master Timeline Registration
 
-Hyperframes operates as a deterministic, seek-based renderer. All animations must be registered on `window.__timelines` under the root composition ID:
+All animations must be registered on `window.__timelines` under the root composition ID:
 
 ```html
 <div id="root" data-composition-id="main" data-start="0" data-duration="19.5" data-width="1080" data-height="1920">
@@ -197,7 +234,7 @@ Hyperframes operates as a deterministic, seek-based renderer. All animations mus
 
 ### Step 7: Verification & Snapshots
 
-Run static lint, WCAG contrast, and motion validation:
+Run automated verification:
 ```bash
 npx --yes hyperframes@0.8.143 check --json
 ```
@@ -230,11 +267,21 @@ ffprobe -v error -show_entries format=duration,size,bit_rate:stream=codec_name,w
 
 ```
 pal-pal-lyric-video/
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md          # Issue template for rendering/timing bugs
+│   │   └── feature_request.md     # Issue template for animation proposals
+│   ├── workflows/
+│   │   └── validate.yml           # GitHub Actions automated CI verification
+│   └── pull_request_template.md   # Pull request submission template
 ├── assets/
 │   ├── audio.mp3                  # Master trimmed vocal audio track (19.5s, 320kbps)
 │   ├── gsap.min.js                # GreenSock Animation Platform v3.12.5
 │   └── fonts/
 │       └── Poppins-ExtraBold.ttf  # Localized static font asset (800 weight)
+├── scripts/
+│   ├── transcribe_and_align.py    # Whisper word-level alignment automation
+│   └── detect_beats.py            # Librosa beat and onset extraction utility
 ├── snapshots/
 │   ├── contact-sheet.jpg          # 8-frame grid overview for visual QA
 │   ├── frame-00-at-0.08s.png      # 'pal' white beat flash impact
@@ -245,10 +292,15 @@ pal-pal-lyric-video/
 │   ├── frame-05-at-9.55s.png      # Duotone shift (Deep Blue -> Wine Red)
 │   ├── frame-06-at-13.35s.png     # 'intezaar' cyan inversion on red
 │   └── frame-07-at-18s.png        # 'singhaar' final hook climax
+├── .editorconfig                  # Formatting and indentation rules
+├── config.json                    # Styling, motion, and color palette configuration
+├── CONTRIBUTING.md                # Contributing guidelines and code standards
 ├── hyperframes.json               # Hyperframes project and registry configuration
 ├── index.html                     # Master composition, DOM hierarchy, and GSAP timeline
+├── LICENSE                        # MIT License
 ├── meta.json                      # Project metadata
 ├── package.json                   # NPM run scripts and tooling dependencies
+├── preview.html                   # Standalone browser player with interactive controls
 ├── out.mp4                        # Full rendered 9:16 vertical MP4 video (32.6 MB)
 └── README.md                      # Comprehensive documentation and creation guideline
 ```
@@ -258,17 +310,20 @@ pal-pal-lyric-video/
 ## Quick Start / Reproduce
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/algoreetham/pal-pal-lyric-video.git
 cd pal-pal-lyric-video
 
-# Launch interactive browser preview
+# 2. Launch interactive browser preview
 npx --yes hyperframes@0.8.143 preview
 
-# Run automated validation check
+# Alternatively, open the standalone browser player directly:
+open preview.html
+
+# 3. Run automated validation check
 npx --yes hyperframes@0.8.143 check
 
-# Render MP4 video
+# 4. Render MP4 video
 npx --yes hyperframes@0.8.143 render -o out.mp4
 ```
 
