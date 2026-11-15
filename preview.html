@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pal Pal — Interactive Browser Player</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #090d16;
+        color: #f8fafc;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+      }
+      .player-container {
+        position: relative;
+        width: 100%;
+        max-width: 405px; /* 1080 * 0.375 */
+        height: 720px;    /* 1920 * 0.375 */
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        background: #000;
+      }
+      iframe {
+        width: 1080px;
+        height: 1920px;
+        border: none;
+        transform-origin: top left;
+        transform: scale(0.375);
+      }
+      .controls {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(12px);
+        padding: 12px 24px;
+        border-radius: 50px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      }
+      button {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: #2563eb;
+      }
+      .time-display {
+        font-variant-numeric: tabular-nums;
+        font-size: 14px;
+        color: #94a3b8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="player-container">
+      <iframe id="video-frame" src="index.html"></iframe>
+    </div>
+
+    <div class="controls">
+      <button id="play-btn">Play / Pause</button>
+      <button id="restart-btn">Restart</button>
+      <span class="time-display" id="time-text">0.00s / 19.50s</span>
+    </div>
+
+    <script>
+      const iframe = document.getElementById("video-frame");
+      const playBtn = document.getElementById("play-btn");
+      const restartBtn = document.getElementById("restart-btn");
+      const timeText = document.getElementById("time-text");
+      let isPlaying = false;
+      let animFrame = null;
+
+      function getTimeline() {
+        try {
+          return iframe.contentWindow?.__timelines?.["main"];
+        } catch {
+          return null;
+        }
+      }
+
+      function getAudio() {
+        try {
+          return iframe.contentDocument?.getElementById("track-audio");
+        } catch {
+          return null;
+        }
+      }
+
+      function togglePlay() {
+        const tl = getTimeline();
+        const audio = getAudio();
+        if (!tl) return;
+
+        if (isPlaying) {
+          tl.pause();
+          audio?.pause();
+          isPlaying = false;
+          playBtn.textContent = "Play";
+        } else {
+          tl.play();
+          audio?.play();
+          isPlaying = true;
+          playBtn.textContent = "Pause";
+          trackProgress();
+        }
+      }
+
+      function restart() {
+        const tl = getTimeline();
+        const audio = getAudio();
+        if (!tl) return;
+        tl.seek(0);
+        if (audio) audio.currentTime = 0;
+        if (!isPlaying) togglePlay();
+      }
+
+      function trackProgress() {
+        const tl = getTimeline();
+        if (tl) {
+          const t = tl.time();
+          timeText.textContent = `${t.toFixed(2)}s / 19.50s`;
+          if (t >= 19.5) {
+            isPlaying = false;
+            playBtn.textContent = "Replay";
+            return;
+          }
+        }
+        if (isPlaying) requestAnimationFrame(trackProgress);
+      }
+
+      playBtn.addEventListener("click", togglePlay);
+      restartBtn.addEventListener("click", restart);
+    </script>
+  </body>
+</html>
