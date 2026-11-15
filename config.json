@@ -1,0 +1,60 @@
+{
+  "project": {
+    "title": "Pal Pal - Lyric Video",
+    "artist": "Afusic",
+    "producer": "Ali Soomro",
+    "aspectRatio": "9:16",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration": 19.5
+  },
+  "typography": {
+    "fontFamily": "Poppins",
+    "fontWeight": 800,
+    "textTransform": "lowercase",
+    "letterSpacing": "-0.05em",
+    "baseColor": "#ffffff",
+    "blendMode": "difference"
+  },
+  "colors": {
+    "firstHalf": {
+      "name": "Deep Royal Blue",
+      "baseGradient": "radial-gradient(circle at 50% 48%, #1e40af 0%, #0f172a 50%, #020617 90%)",
+      "orbPrimary": "#38bdf8",
+      "orbSecondary": "#818cf8"
+    },
+    "secondHalf": {
+      "name": "Velvet Wine Red",
+      "transitionTime": 9.45,
+      "baseGradient": "radial-gradient(circle at 50% 50%, #9f1239 0%, #4c0519 50%, #140207 90%)",
+      "orbPrimary": "#fb7185",
+      "orbSecondary": "#f43f5e"
+    }
+  },
+  "motion": {
+    "entrancePunch": {
+      "startScale": 1.55,
+      "endScale": 1.0,
+      "snapEase": "back.out(2.4)"
+    },
+    "vocalDrift": {
+      "sustainScale": 1.12,
+      "ease": "power1.out"
+    },
+    "ghostEcho": {
+      "maxScale": 1.9,
+      "blurPx": 14,
+      "initialOpacity": 0.85
+    },
+    "beatKick": {
+      "scale": 1.04,
+      "y": -14,
+      "duration": 0.16
+    },
+    "flash": {
+      "opacity": 0.88,
+      "duration": 0.11
+    }
+  }
+}
