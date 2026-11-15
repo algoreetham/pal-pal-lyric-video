@@ -1,0 +1,91 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+    }
+    .bg-blue-container {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 45%, #1d4ed8 0%, #0c1c4f 45%, #030712 90%);
+    }
+    .bg-red-container {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, #9f1239 0%, #4c0519 45%, #140207 90%);
+      opacity: 0;
+    }
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    .orb-blue-1 {
+      width: 650px;
+      height: 650px;
+      top: 25%;
+      left: 18%;
+      background: radial-gradient(circle, #38bdf8 0%, rgba(56, 189, 248, 0) 70%);
+      opacity: 0.7;
+    }
+    .orb-blue-2 {
+      width: 580px;
+      height: 580px;
+      bottom: 22%;
+      right: 15%;
+      background: radial-gradient(circle, #6366f1 0%, rgba(99, 102, 241, 0) 70%);
+      opacity: 0.65;
+    }
+    .orb-red-1 {
+      width: 660px;
+      height: 660px;
+      top: 24%;
+      left: 18%;
+      background: radial-gradient(circle, #fb7185 0%, rgba(251, 113, 133, 0) 70%);
+      opacity: 0.72;
+    }
+    .orb-red-2 {
+      width: 560px;
+      height: 560px;
+      bottom: 20%;
+      right: 16%;
+      background: radial-gradient(circle, #f43f5e 0%, rgba(244, 63, 94, 0) 70%);
+      opacity: 0.68;
+    }
+  </style>
+  <div id="root" data-composition-id="background" data-width="1080" data-height="1920">
+    <div id="blue-layer" class="clip bg-blue-container" data-start="0" data-duration="19.5">
+      <div class="glow-orb orb-blue-1"></div>
+      <div class="glow-orb orb-blue-2"></div>
+    </div>
+    <div id="red-layer" class="clip bg-red-container" data-start="0" data-duration="19.5">
+      <div class="glow-orb orb-red-1"></div>
+      <div class="glow-orb orb-red-2"></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // Duotone shift at 9.45s: Deep Blue in 1st half -> Wine Red in 2nd half
+    tl.to(".bg-red-container", {
+      opacity: 1,
+      duration: 0.65,
+      ease: "power2.inOut"
+    }, 9.45);
+
+    // Living luminous orb drift
+    tl.to(".orb-blue-1", { x: 45, y: -35, scale: 1.08, duration: 9.5, ease: "sine.inOut" }, 0);
+    tl.to(".orb-blue-2", { x: -40, y: 40, scale: 0.95, duration: 9.5, ease: "sine.inOut" }, 0);
+    tl.to(".orb-red-1", { x: -35, y: 45, scale: 1.06, duration: 10, ease: "sine.inOut" }, 9.5);
+    tl.to(".orb-red-2", { x: 45, y: -30, scale: 0.96, duration: 10, ease: "sine.inOut" }, 9.5);
+
+    tl.seek(0);
+    window.__timelines = window.__timelines || {};
+    window.__timelines["background"] = tl;
+  </script>
+</template>

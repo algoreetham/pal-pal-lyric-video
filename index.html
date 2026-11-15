@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Pal Pal - Epic Animated Lyric Video</title>
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Poppins';
+        src: url('assets/fonts/Poppins-ExtraBold.ttf') format('truetype');
+        font-weight: 800;
+        font-style: normal;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #020617;
+        font-family: 'Poppins', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        isolation: isolate;
+        background: #000000;
+      }
+
+      /* Camera Rig for Beat Kicks */
+      #camera-rig {
+        position: absolute;
+        inset: 0;
+        width: 1080px;
+        height: 1920px;
+        transform-origin: center center;
+        will-change: transform;
+      }
+
+      /* Background Layer */
+      .bg-layer {
+        position: absolute;
+        inset: -100px;
+        width: 1280px;
+        height: 2120px;
+      }
+      .bg-blue {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 48%, #1e40af 0%, #0f172a 50%, #020617 90%);
+        opacity: 1;
+      }
+      .bg-red {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 50%, #9f1239 0%, #4c0519 50%, #140207 90%);
+        opacity: 0;
+      }
+      .glow-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(90px);
+        mix-blend-mode: screen;
+        will-change: transform;
+      }
+      .orb-1 {
+        width: 720px;
+        height: 720px;
+        top: 25%;
+        left: 15%;
+        background: radial-gradient(circle, #38bdf8 0%, rgba(56, 189, 248, 0) 70%);
+        opacity: 0.85;
+      }
+      .orb-2 {
+        width: 650px;
+        height: 650px;
+        bottom: 20%;
+        right: 12%;
+        background: radial-gradient(circle, #818cf8 0%, rgba(129, 140, 248, 0) 70%);
+        opacity: 0.8;
+      }
+      .orb-3 {
+        width: 740px;
+        height: 740px;
+        top: 23%;
+        left: 16%;
+        background: radial-gradient(circle, #fb7185 0%, rgba(251, 113, 133, 0) 70%);
+        opacity: 0.85;
+      }
+      .orb-4 {
+        width: 680px;
+        height: 680px;
+        bottom: 18%;
+        right: 14%;
+        background: radial-gradient(circle, #f43f5e 0%, rgba(244, 63, 94, 0) 70%);
+        opacity: 0.82;
+      }
+
+      /* Center Lyric Container with difference blend */
+      #lyrics-stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        mix-blend-mode: difference;
+        pointer-events: none;
+        z-index: 10;
+      }
+      .word-card {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        opacity: 0;
+        visibility: hidden;
+      }
+      .word-main {
+        position: relative;
+        display: inline-block;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        text-transform: lowercase;
+        letter-spacing: -0.05em;
+        line-height: 1;
+        color: #ffffff;
+        text-align: center;
+        padding: 0 40px;
+        max-width: 960px;
+        transform-origin: center center;
+        will-change: transform, opacity;
+      }
+      .word-echo {
+        position: absolute;
+        display: inline-block;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        text-transform: lowercase;
+        letter-spacing: -0.05em;
+        line-height: 1;
+        color: #ffffff;
+        text-align: center;
+        padding: 0 40px;
+        max-width: 960px;
+        opacity: 0;
+        transform-origin: center center;
+        will-change: transform, opacity;
+      }
+
+      /* Pixel-Mosaic Dissolve Layer */
+      #mosaic-container {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        mix-blend-mode: difference;
+        pointer-events: none;
+        z-index: 20;
+      }
+      .mosaic-tile {
+        position: absolute;
+        background: #ffffff;
+        box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.25);
+        opacity: 0;
+        transform-origin: center center;
+      }
+
+      /* White Beat Flash */
+      #flash-overlay {
+        position: absolute;
+        inset: 0;
+        background: #ffffff;
+        opacity: 0;
+        mix-blend-mode: screen;
+        pointer-events: none;
+        z-index: 30;
+      }
+
+      /* Film Grain */
+      #grain-overlay {
+        position: absolute;
+        top: -40%;
+        left: -40%;
+        width: 180%;
+        height: 180%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.22;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+        z-index: 40;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="19.5"
+      data-width="1080"
+      data-height="1920"
+    >
+      <audio id="track-audio" src="assets/audio.mp3" data-start="0" data-duration="19.5" preload="auto"></audio>
+
+      <!-- Camera Rig (moves on beat kicks) -->
+      <div id="camera-rig">
+        
+        <!-- Duotone Dynamic Background -->
+        <div class="bg-layer">
+          <div class="bg-blue">
+            <div class="glow-orb orb-1"></div>
+            <div class="glow-orb orb-2"></div>
+          </div>
+          <div class="bg-red">
+            <div class="glow-orb orb-3"></div>
+            <div class="glow-orb orb-4"></div>
+          </div>
+        </div>
+
+        <!-- Lyrics Stage (Difference blend) -->
+        <div id="lyrics-stage">
+          
+      <div id="w-0" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">pal</div>
+        <div class="word-main" style="font-size: 140px;">pal</div>
+      </div>
+      <div id="w-1" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">pal</div>
+        <div class="word-main" style="font-size: 140px;">pal</div>
+      </div>
+      <div id="w-2" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">jeena</div>
+        <div class="word-main" style="font-size: 140px;">jeena</div>
+      </div>
+      <div id="w-3" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 126px;">muhaal</div>
+        <div class="word-main" style="font-size: 126px;">muhaal</div>
+      </div>
+      <div id="w-4" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">mera</div>
+        <div class="word-main" style="font-size: 140px;">mera</div>
+      </div>
+      <div id="w-5" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">tere</div>
+        <div class="word-main" style="font-size: 140px;">tere</div>
+      </div>
+      <div id="w-6" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">bina</div>
+        <div class="word-main" style="font-size: 140px;">bina</div>
+      </div>
+      <div id="w-7" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">yeh</div>
+        <div class="word-main" style="font-size: 140px;">yeh</div>
+      </div>
+      <div id="w-8" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 126px;">saaray</div>
+        <div class="word-main" style="font-size: 126px;">saaray</div>
+      </div>
+      <div id="w-9" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 126px;">nashay</div>
+        <div class="word-main" style="font-size: 126px;">nashay</div>
+      </div>
+      <div id="w-10" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 126px;">bekaar</div>
+        <div class="word-main" style="font-size: 126px;">bekaar</div>
+      </div>
+      <div id="w-11" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">teri</div>
+        <div class="word-main" style="font-size: 140px;">teri</div>
+      </div>
+      <div id="w-12" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 118px;">aankhon</div>
+        <div class="word-main" style="font-size: 118px;">aankhon</div>
+      </div>
+      <div id="w-13" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">ke</div>
+        <div class="word-main" style="font-size: 140px;">ke</div>
+      </div>
+      <div id="w-14" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">siwa</div>
+        <div class="word-main" style="font-size: 140px;">siwa</div>
+      </div>
+      <div id="w-15" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">ghar</div>
+        <div class="word-main" style="font-size: 140px;">ghar</div>
+      </div>
+      <div id="w-16" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">nahi</div>
+        <div class="word-main" style="font-size: 140px;">nahi</div>
+      </div>
+      <div id="w-17" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">jaata</div>
+        <div class="word-main" style="font-size: 140px;">jaata</div>
+      </div>
+      <div id="w-18" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">mein</div>
+        <div class="word-main" style="font-size: 140px;">mein</div>
+      </div>
+      <div id="w-19" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">bahar</div>
+        <div class="word-main" style="font-size: 140px;">bahar</div>
+      </div>
+      <div id="w-20" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">rehta</div>
+        <div class="word-main" style="font-size: 140px;">rehta</div>
+      </div>
+      <div id="w-21" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">tera</div>
+        <div class="word-main" style="font-size: 140px;">tera</div>
+      </div>
+      <div id="w-22" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 110px;">intezaar</div>
+        <div class="word-main" style="font-size: 110px;">intezaar</div>
+      </div>
+      <div id="w-23" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">mere</div>
+        <div class="word-main" style="font-size: 140px;">mere</div>
+      </div>
+      <div id="w-24" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 110px;">khuwabon</div>
+        <div class="word-main" style="font-size: 110px;">khuwabon</div>
+      </div>
+      <div id="w-25" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">main</div>
+        <div class="word-main" style="font-size: 140px;">main</div>
+      </div>
+      <div id="w-26" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 150px;">aa</div>
+        <div class="word-main" style="font-size: 150px;">aa</div>
+      </div>
+      <div id="w-27" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 150px;">naa</div>
+        <div class="word-main" style="font-size: 150px;">naa</div>
+      </div>
+      <div id="w-28" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">kar</div>
+        <div class="word-main" style="font-size: 140px;">kar</div>
+      </div>
+      <div id="w-29" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">ke</div>
+        <div class="word-main" style="font-size: 140px;">ke</div>
+      </div>
+      <div id="w-30" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 140px;">solah</div>
+        <div class="word-main" style="font-size: 140px;">solah</div>
+      </div>
+      <div id="w-31" class="word-card" data-layout-allow-overlap="true">
+        <div class="word-echo" data-layout-allow-overlap="true" style="font-size: 110px;">singhaar</div>
+        <div class="word-main" style="font-size: 110px;">singhaar</div>
+      </div>
+        </div>
+
+        <!-- Pixel-Mosaic Dissolve Grid -->
+        <div id="mosaic-container">
+          <div class="mosaic-tile" id="mt-0" style="left:0.0px; top:0.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-1" style="left:135.0px; top:0.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-2" style="left:270.0px; top:0.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-3" style="left:405.0px; top:0.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-4" style="left:540.0px; top:0.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-5" style="left:675.0px; top:0.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-6" style="left:810.0px; top:0.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-7" style="left:945.0px; top:0.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-8" style="left:0.0px; top:137.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-9" style="left:135.0px; top:137.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-10" style="left:270.0px; top:137.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-11" style="left:405.0px; top:137.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-12" style="left:540.0px; top:137.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-13" style="left:675.0px; top:137.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-14" style="left:810.0px; top:137.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-15" style="left:945.0px; top:137.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-16" style="left:0.0px; top:274.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-17" style="left:135.0px; top:274.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-18" style="left:270.0px; top:274.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-19" style="left:405.0px; top:274.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-20" style="left:540.0px; top:274.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-21" style="left:675.0px; top:274.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-22" style="left:810.0px; top:274.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-23" style="left:945.0px; top:274.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-24" style="left:0.0px; top:411.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-25" style="left:135.0px; top:411.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-26" style="left:270.0px; top:411.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-27" style="left:405.0px; top:411.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-28" style="left:540.0px; top:411.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-29" style="left:675.0px; top:411.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-30" style="left:810.0px; top:411.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-31" style="left:945.0px; top:411.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-32" style="left:0.0px; top:548.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-33" style="left:135.0px; top:548.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-34" style="left:270.0px; top:548.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-35" style="left:405.0px; top:548.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-36" style="left:540.0px; top:548.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-37" style="left:675.0px; top:548.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-38" style="left:810.0px; top:548.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-39" style="left:945.0px; top:548.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-40" style="left:0.0px; top:685.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-41" style="left:135.0px; top:685.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-42" style="left:270.0px; top:685.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-43" style="left:405.0px; top:685.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-44" style="left:540.0px; top:685.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-45" style="left:675.0px; top:685.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-46" style="left:810.0px; top:685.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-47" style="left:945.0px; top:685.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-48" style="left:0.0px; top:822.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-49" style="left:135.0px; top:822.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-50" style="left:270.0px; top:822.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-51" style="left:405.0px; top:822.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-52" style="left:540.0px; top:822.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-53" style="left:675.0px; top:822.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-54" style="left:810.0px; top:822.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-55" style="left:945.0px; top:822.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-56" style="left:0.0px; top:960.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-57" style="left:135.0px; top:960.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-58" style="left:270.0px; top:960.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-59" style="left:405.0px; top:960.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-60" style="left:540.0px; top:960.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-61" style="left:675.0px; top:960.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-62" style="left:810.0px; top:960.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-63" style="left:945.0px; top:960.0px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-64" style="left:0.0px; top:1097.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-65" style="left:135.0px; top:1097.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-66" style="left:270.0px; top:1097.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-67" style="left:405.0px; top:1097.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-68" style="left:540.0px; top:1097.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-69" style="left:675.0px; top:1097.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-70" style="left:810.0px; top:1097.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-71" style="left:945.0px; top:1097.1px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-72" style="left:0.0px; top:1234.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-73" style="left:135.0px; top:1234.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-74" style="left:270.0px; top:1234.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-75" style="left:405.0px; top:1234.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-76" style="left:540.0px; top:1234.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-77" style="left:675.0px; top:1234.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-78" style="left:810.0px; top:1234.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-79" style="left:945.0px; top:1234.3px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-80" style="left:0.0px; top:1371.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-81" style="left:135.0px; top:1371.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-82" style="left:270.0px; top:1371.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-83" style="left:405.0px; top:1371.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-84" style="left:540.0px; top:1371.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-85" style="left:675.0px; top:1371.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-86" style="left:810.0px; top:1371.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-87" style="left:945.0px; top:1371.4px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-88" style="left:0.0px; top:1508.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-89" style="left:135.0px; top:1508.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-90" style="left:270.0px; top:1508.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-91" style="left:405.0px; top:1508.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-92" style="left:540.0px; top:1508.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-93" style="left:675.0px; top:1508.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-94" style="left:810.0px; top:1508.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-95" style="left:945.0px; top:1508.6px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-96" style="left:0.0px; top:1645.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-97" style="left:135.0px; top:1645.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-98" style="left:270.0px; top:1645.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-99" style="left:405.0px; top:1645.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-100" style="left:540.0px; top:1645.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-101" style="left:675.0px; top:1645.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-102" style="left:810.0px; top:1645.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-103" style="left:945.0px; top:1645.7px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-104" style="left:0.0px; top:1782.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-105" style="left:135.0px; top:1782.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-106" style="left:270.0px; top:1782.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-107" style="left:405.0px; top:1782.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-108" style="left:540.0px; top:1782.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-109" style="left:675.0px; top:1782.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-110" style="left:810.0px; top:1782.9px; width:135.0px; height:137.1px;"></div><div class="mosaic-tile" id="mt-111" style="left:945.0px; top:1782.9px; width:135.0px; height:137.1px;"></div>
+        </div>
+
+        <!-- White Beat Flash -->
+        <div id="flash-overlay"></div>
+
+      </div>
+
+      <!-- Cinematic Film Grain Overlay -->
+      <div id="grain-overlay"></div>
+
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const wordsData = [{"text": "pal", "start": 0.04, "end": 0.45, "size": 140}, {"text": "pal", "start": 0.45, "end": 0.9, "size": 140}, {"text": "jeena", "start": 0.9, "end": 1.84, "size": 140}, {"text": "muhaal", "start": 1.84, "end": 2.64, "size": 126}, {"text": "mera", "start": 2.64, "end": 3.46, "size": 140}, {"text": "tere", "start": 3.46, "end": 4.22, "size": 140}, {"text": "bina", "start": 4.22, "end": 4.98, "size": 140}, {"text": "yeh", "start": 5.12, "end": 5.3, "size": 140}, {"text": "saaray", "start": 5.3, "end": 5.7, "size": 126}, {"text": "nashay", "start": 5.7, "end": 6.1, "size": 126}, {"text": "bekaar", "start": 6.1, "end": 7.28, "size": 126}, {"text": "teri", "start": 7.46, "end": 8.06, "size": 140}, {"text": "aankhon", "start": 8.06, "end": 8.96, "size": 118}, {"text": "ke", "start": 8.96, "end": 9.27, "size": 140}, {"text": "siwa", "start": 9.27, "end": 9.65, "size": 140}, {"text": "ghar", "start": 9.8, "end": 10.35, "size": 140}, {"text": "nahi", "start": 10.35, "end": 10.7, "size": 140}, {"text": "jaata", "start": 10.7, "end": 11.08, "size": 140}, {"text": "mein", "start": 11.08, "end": 11.48, "size": 140}, {"text": "bahar", "start": 11.48, "end": 11.96, "size": 140}, {"text": "rehta", "start": 12.08, "end": 12.6, "size": 140}, {"text": "tera", "start": 12.6, "end": 13.26, "size": 140}, {"text": "intezaar", "start": 13.26, "end": 13.96, "size": 110}, {"text": "mere", "start": 14.08, "end": 14.66, "size": 140}, {"text": "khuwabon", "start": 14.66, "end": 15.62, "size": 110}, {"text": "main", "start": 15.62, "end": 16.09, "size": 140}, {"text": "aa", "start": 16.09, "end": 16.58, "size": 150}, {"text": "naa", "start": 16.58, "end": 16.82, "size": 150}, {"text": "kar", "start": 16.92, "end": 17.1, "size": 140}, {"text": "ke", "start": 17.1, "end": 17.25, "size": 140}, {"text": "solah", "start": 17.25, "end": 17.9, "size": 140}, {"text": "singhaar", "start": 17.9, "end": 19.3, "size": 110}];
+      const beatTimes = [0.12, 0.92, 1.78, 2.64, 3.58, 4.58, 5.14, 6.1, 7.42, 8.18, 9.72, 10.74, 11.62, 12.02, 12.96, 14.02, 15.0, 16.22, 17.04, 17.72, 18.78];
+      const lineTransitions = [[4.98, 5.12], [7.28, 7.46], [9.65, 9.8], [11.96, 12.08], [13.96, 14.08], [16.82, 16.92], [18.75, 19.3]];
+
+      // 1. DYNAMIC BACKGROUND MOTION & DUOTONE SHIFT
+      // Continuous floating orb breathing & camera drift
+      tl.to(".orb-1", { x: 60, y: -45, scale: 1.15, duration: 9.5, ease: "sine.inOut" }, 0);
+      tl.to(".orb-2", { x: -50, y: 55, scale: 0.9, duration: 9.5, ease: "sine.inOut" }, 0);
+      tl.to(".bg-blue", { scale: 1.05, duration: 9.5, ease: "sine.inOut" }, 0);
+
+      // Duotone transition at 9.45s: Blue -> Wine Red
+      tl.to(".bg-red", { opacity: 1, duration: 0.65, ease: "power2.inOut" }, 9.45);
+      tl.to(".orb-3", { x: -55, y: 50, scale: 1.12, duration: 10, ease: "sine.inOut" }, 9.5);
+      tl.to(".orb-4", { x: 60, y: -40, scale: 0.92, duration: 10, ease: "sine.inOut" }, 9.5);
+      tl.to(".bg-red", { scale: 1.05, duration: 10, ease: "sine.inOut" }, 9.5);
+
+      // 2. EPIC WORD-BY-WORD KINETIC ANIMATIONS
+      wordsData.forEach((w, i) => {
+        const card = "#w-" + i;
+        const main = "#w-" + i + " .word-main";
+        const echo = "#w-" + i + " .word-echo";
+        const dur = w.end - w.start;
+        const snapDur = Math.min(0.18, dur * 0.45);
+        const rot = (i % 2 === 0 ? -3 : 3);
+
+        // Instant reveal card at start
+        tl.set(card, { autoAlpha: 1 }, w.start);
+
+        // Entrance Punch (Slam in from big scale + rotation + tight letter-spacing snap)
+        tl.fromTo(main,
+          { scale: 1.55, rotation: rot, y: 22, opacity: 0 },
+          { scale: 1.0, rotation: 0, y: 0, opacity: 1, duration: snapDur, ease: "back.out(2.4)" },
+          w.start
+        );
+
+        // Living Vocal Sustain Drift (breathing continuous scale during vocal hold)
+        if (dur > snapDur) {
+          tl.to(main,
+            { scale: 1.12, duration: dur - snapDur, ease: "power1.out" },
+            w.start + snapDur
+          );
+        }
+
+        // Kinetic Text Echo Pulse (expanding ghost layer that bursts outward)
+        tl.fromTo(echo,
+          { scale: 1.0, opacity: 0.85, filter: "blur(0px)" },
+          { scale: 1.9, opacity: 0, filter: "blur(14px)", duration: Math.min(0.32, dur * 0.75), ease: "power2.out" },
+          w.start
+        );
+
+        // Hide card at word end
+        tl.set(card, { autoAlpha: 0 }, w.end);
+      });
+
+      // 3. BEAT KICKS & WHITE FLASH FRAMES
+      beatTimes.forEach((bt) => {
+        if (bt < 19.3) {
+          // Camera rig impact punch (screen shake / kick)
+          tl.fromTo("#camera-rig",
+            { scale: 1.04, y: -14 },
+            { scale: 1.0, y: 0, duration: 0.16, ease: "power2.out" },
+            bt
+          );
+
+          // White screen flash frame
+          tl.fromTo("#flash-overlay",
+            { opacity: 0.88 },
+            { opacity: 0, duration: 0.11, ease: "power2.out" },
+            bt
+          );
+        }
+      });
+
+      // 4. ANIMATED PIXEL-MOSAIC DISSOLVE BETWEEN LINES
+      const tiles = document.querySelectorAll(".mosaic-tile");
+      lineTransitions.forEach(([tStart, tEnd], lIdx) => {
+        const transDur = tEnd - tStart;
+        const peakTime = tStart + transDur * 0.45;
+
+        // Container fade in & out
+        tl.fromTo("#mosaic-container",
+          { opacity: 0 },
+          { opacity: 1, duration: transDur * 0.45, ease: "power1.in" },
+          tStart
+        );
+        tl.to("#mosaic-container",
+          { opacity: 0, duration: transDur * 0.55, ease: "power2.out" },
+          peakTime
+        );
+
+        // Pixel blocks wave & stagger animation
+        tiles.forEach((tile, tIdx) => {
+          // Deterministic pseudo-random seed per tile & transition
+          const seed = Math.sin(tIdx * 73.1 + lIdx * 37.9);
+          const pr = (seed - Math.floor(seed));
+          if (pr > 0.22) {
+            const targetOpacity = 0.4 + (pr * 0.6);
+            const tileStart = tStart + (pr * transDur * 0.35);
+            const tileDur = (transDur * 0.55);
+
+            tl.fromTo(tile,
+              { opacity: 0, scale: 0.4, rotation: (pr > 0.6 ? 45 : 0) },
+              { opacity: targetOpacity, scale: 1.05, duration: tileDur * 0.5, ease: "power1.out" },
+              tileStart
+            );
+            tl.to(tile,
+              { opacity: 0, scale: 1.25, duration: tileDur * 0.5, ease: "power1.in" },
+              tileStart + (tileDur * 0.5)
+            );
+          }
+        });
+      });
+
+      // 5. DETERMINISTIC 35MM FILM GRAIN STEPPING
+      for (let t = 0; t < 19.5; t += 0.066) {
+        const gx = ((Math.sin(t * 153.2) * 1000) % 36) - 18;
+        const gy = ((Math.cos(t * 291.7) * 1000) % 36) - 18;
+        tl.set("#grain-overlay", { x: gx, y: gy }, Number(t.toFixed(3)));
+      }
+
+      // Seek to start and register timeline to main composition ID
+      tl.seek(0);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

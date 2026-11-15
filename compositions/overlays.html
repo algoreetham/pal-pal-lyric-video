@@ -1,0 +1,181 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .mosaic-wrap {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      mix-blend-mode: difference;
+    }
+    .mosaic-tile {
+      position: absolute;
+      background: #ffffff;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.18);
+      opacity: 0;
+      transform-origin: center center;
+    }
+    .grain-layer {
+      position: absolute;
+      top: -25%;
+      left: -25%;
+      width: 150%;
+      height: 150%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.18;
+      mix-blend-mode: overlay;
+      will-change: transform;
+    }
+    .flash-box {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      mix-blend-mode: screen;
+    }
+  </style>
+  <div id="root" data-composition-id="overlays" data-width="1080" data-height="1920">
+    <!-- Pixel-Mosaic Dissolve Layer -->
+    <div id="mosaic-clip" class="clip mosaic-wrap" data-start="0" data-duration="19.5">
+      <div class="mosaic-grid">
+        <div class="mosaic-tile" style="left:0.0px; top:0.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:0.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:0.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:0.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:0.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:0.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:0.0px; top:192.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:192.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:192.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:192.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:192.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:192.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:0.0px; top:384.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:384.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:384.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:384.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:384.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:384.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:0.0px; top:576.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:576.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:576.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:576.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:576.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:576.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:0.0px; top:768.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:768.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:768.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:768.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:768.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:768.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:0.0px; top:960.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:960.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:960.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:960.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:960.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:960.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:0.0px; top:1152.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:1152.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:1152.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:1152.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:1152.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:1152.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:0.0px; top:1344.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:1344.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:1344.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:1344.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:1344.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:1344.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:0.0px; top:1536.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:1536.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:1536.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:1536.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:1536.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:1536.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:0.0px; top:1728.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:180.0px; top:1728.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:360.0px; top:1728.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:540.0px; top:1728.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:720.0px; top:1728.0px; width:180.0px; height:192.0px;"></div>
+        <div class="mosaic-tile" style="left:900.0px; top:1728.0px; width:180.0px; height:192.0px;"></div>
+      </div>
+    </div>
+
+    <!-- Film Grain Overlay -->
+    <div id="grain-clip" class="clip" data-start="0" data-duration="19.5">
+      <div class="grain-layer"></div>
+    </div>
+
+    <!-- White Flash Frames -->
+    <div id="flash-clip" class="clip" data-start="0" data-duration="19.5">
+      <div class="flash-box"></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // 1. Pixel-Mosaic Dissolve Between Lines
+    const lineTransitions = [[4.98, 5.12], [7.28, 7.46], [9.65, 9.8], [11.96, 12.08], [13.96, 14.08], [16.82, 16.92], [18.75, 19.3]];
+    const tiles = document.querySelectorAll(".mosaic-tile");
+    
+    lineTransitions.forEach(([tStart, tEnd], idx) => {
+      const dur = tEnd - tStart;
+      const halfDur = dur * 0.45;
+      
+      tl.fromTo(".mosaic-wrap", 
+        { opacity: 0 }, 
+        { opacity: 0.88, duration: halfDur, ease: "power1.in" }, 
+        tStart
+      );
+      tl.to(".mosaic-wrap", 
+        { opacity: 0, duration: dur - halfDur, ease: "power2.out" }, 
+        tStart + halfDur
+      );
+
+      tiles.forEach((tile, tIdx) => {
+        const pseudoRand = ((Math.sin(tIdx * 89.7 + idx * 43.3) + 1) / 2);
+        if (pseudoRand > 0.28) {
+          const tileOpacity = 0.35 + (pseudoRand * 0.65);
+          tl.fromTo(tile,
+            { opacity: 0, scale: 0.82 },
+            { opacity: tileOpacity, scale: 1.0, duration: halfDur, ease: "none" },
+            tStart
+          );
+          tl.to(tile,
+            { opacity: 0, scale: 1.12, duration: dur - halfDur, ease: "none" },
+            tStart + halfDur
+          );
+        }
+      });
+    });
+
+    // 2. White Flash Frames on Strong Beats
+    const beatTimes = [0.12, 0.92, 1.78, 2.64, 3.58, 4.58, 5.14, 6.1, 7.42, 8.18, 9.72, 10.74, 11.62, 12.02, 12.96, 14.02, 15.0, 16.22, 17.04, 17.72, 18.78];
+    beatTimes.forEach((bt) => {
+      if (bt < 19.3) {
+        tl.fromTo(".flash-box", 
+          { opacity: 0.72 }, 
+          { opacity: 0, duration: 0.08, ease: "power2.out" }, 
+          bt
+        );
+      }
+    });
+
+    // 3. Film Grain Stepped Jitter (Deterministic)
+    for (let t = 0; t < 19.5; t += 0.08) {
+      const gx = ((Math.sin(t * 137.5) * 1000) % 24) - 12;
+      const gy = ((Math.cos(t * 269.3) * 1000) % 24) - 12;
+      tl.set(".grain-layer", { x: gx, y: gy }, Number(t.toFixed(2)));
+    }
+
+    tl.seek(0);
+    window.__timelines = window.__timelines || {};
+    window.__timelines["overlays"] = tl;
+  </script>
+</template>
